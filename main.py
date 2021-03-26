@@ -22,11 +22,11 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    if message.content[0]=='&':
-       readmessage(message,client)
+    if message.content.startswith('&'):
+       await functions.readmessage(message,client)
     else:
       #await message.channel.send('VAI PO CARALHO!')
-      await functions.random(message)
+      await functions.random(message,client)
    
 
    

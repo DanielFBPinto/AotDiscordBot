@@ -10,6 +10,9 @@ discord = "^1.0.1"
 flask = "^1.1.2"
 anime = "^1.1.0"
 riotwatcher = "^3.1.1"
+ffmpeg = "^1.4"
+youtube-dl = "^2021.3.14"
+PyNaCl = "^1.4.0"
 
 [tool.poetry.dev-dependencies]
 

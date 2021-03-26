@@ -1,19 +1,28 @@
 from datetime import date
 import riotwatcher
 import os
+import discord
+from discord.ext import commands
+import youtube_dl
 
 #authentication on riotwatcher
 lol_watcher = riotwatcher.LolWatcher(os.getenv('RIOTT'))
 my_region = 'euw1'
-
+##################################################################################################
+## Function for the default case
+##################################################################################################
+async def defaultfunction(message, client):
+      return
 ##################################################################################################
 ## Function that will choose which type of commands the bot will chose 
 ##################################################################################################
-def readmessage(message, client):
+async def readmessage(message, client):
     switcher = {
-        '': 'exe',
+        'anime': anime,
     }
-    func = switcher.get(message[0], lambda: "Invalid function")
+    mystring = message.content.split("&", 1)[1]
+    checkstring=mystring.split("anime", 1)[0]
+    func = switcher.get(checkstring, defaultfunction)
     await func(message, client)
 
 ##################################################################################################
@@ -27,7 +36,7 @@ async def lol(messagestring,client):
         'champion': 'exe',
         'champ mastey': 'exe',
     }
-    func = switcher.get(messagestring[0], lambda: "Invalid function")
+    func = switcher.get(messagestring[0], defaultfunction)
     await func(messagestring,client)
 
 
@@ -35,41 +44,46 @@ async def lol(messagestring,client):
 ##################################################################################################
 ## Function that will chose which function to use with no previous symbol
 ##################################################################################################
-async def random(message):
+async def random(message,client):
     switcher = {
         'Martim': martim,
         'Tilas': tilas,
         'Waza': waza,
-        'Que dia é hoje': 'dayis' 
+        'Que dia é hoje?': dayis,
+        'join': joinvoice,
+        'leave': leave
     }
-    func = switcher.get(message.content, lambda: "Invalid function")
-    await func(message)    
+    func = switcher.get(message.content, defaultfunction)
+    await func(message,client)    
 
 
 ##################################################################################################
 ## Function that will choose which Anime related function to use with previous symbol
 ##################################################################################################
-def anime(messagestring):
+async def anime(message,client):
     switcher = {
+        'join':joinvoice,
         'add': 'exe',
         'link': 'exe',
         'day': 'exe',
     }
-    func = switcher.get(messagestring[0], lambda: "Invalid function")
-    func() 
+    mystring = message.content.split("&", 1)[1]
+    checkstring=mystring.split("anime", 1)[1]
+    func = switcher.get(checkstring, defaultfunction)
+    await func(message,client) 
 
 
 ##################################################################################################
 ## Will send a msg on the previous message channel
 ##################################################################################################
-async def martim(message):
+async def martim(message,client):
   await message.channel.send('VAI PO CARALHO!')
 
 
 ##################################################################################################
 ## Will send a msg on the previous message channel
 ##################################################################################################
-async def waza(message):
+async def waza(message,client):
   await message.channel.send('SUUUUPPP SUUUPPPP!!!!')
 
 
@@ -77,12 +91,34 @@ async def waza(message):
 ##################################################################################################
 ## Will send a msg on the previous message channel
 ##################################################################################################
-async def tilas(message):
+async def tilas(message,client):
   await message.channel.send(
             'https://tenor.com/view/belly-dancing-big-tummy-gif-15013188')
 
+##################################################################################################
+## Will send a msg on the previous message channel
+##################################################################################################
+async def sasha(message,client):
+  await message.channel.send(
+            'https://tenor.com/view/belly-dancing-big-tummy-gif-15013188')
 
-
+##################################################################################################
+## Will make bot join voice
+##################################################################################################
+async def joinvoice(message,client):
+    print("cheguei")
+    channel = message.author.voice.channel
+    await channel.connect()
+##################################################################################################
+## Will make bot leave  voice
+##################################################################################################
+async def leave(message,client):
+    channel = message.author.voice.channel
+    #await channel.disconnect()
+    for x in client.voice_clients:
+        if(x.channel == client.message.server):
+            return await x.disconnect()
+    return await client.say("I am not connected to any voice channel on this server!")
 
 ##################################################################################################
 ##################################################################################################
@@ -126,7 +162,7 @@ async def test2(message):
 ##################################################################################################
 ## Will send a picture in the previous message channel based on the day of the week
 ##################################################################################################
-async def dayis(message, discord):
+async def dayis(message,client):
   if date.today().weekday() == 6:
             await message.channel.send(file=discord.File('titanfrog.png'))
   else:
